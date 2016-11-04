@@ -1,9 +1,21 @@
 exports.page = function () {
     var data = require("../db");
-
+    console.log(data);
     var page = new tabris.Page({
         title: "Add Note",
         topLevel: false
+    });
+
+    var scrollView = new tabris.ScrollView({
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+    }).appendTo(page);
+
+    tabris.device.on("change:orientation", function (device, orientation) {
+        scrollView.set("scrollX", 0);
+        scrollView.set("scrollY", 0);
     });
 
     var textP = new tabris.TextInput({
@@ -13,7 +25,7 @@ exports.page = function () {
             right: "10%"
         },
         message: "Title"
-    }).appendTo(page);
+    }).appendTo(scrollView);
 
     var textI = new tabris.TextInput({
         layoutData: {
@@ -24,7 +36,7 @@ exports.page = function () {
         },
         type: "multiline",
         message: "Description"
-    }).appendTo(page);
+    }).appendTo(scrollView);
 
     new tabris.Button({
         layoutData: {
@@ -33,13 +45,11 @@ exports.page = function () {
         },
         text: "Add"
     }).on('tap', function () {
-        var notes = {
-            "test1": "data pne",
-            "teset2": textI.get("text"),
-            "test4": "localStorage.getItemlocalStorage.getItemlocalStorage.getItemlocalStorage.getItemlocalStorage.getItemlocalStorage.getItem"
-        };
+        var notes = JSON.parse(localStorage.getItem("notes"));
+        var username = localStorage.getItem("username");
+        notes[username][textP.get("text")] = textI.get("text");
         localStorage.setItem("notes", JSON.stringify(notes));
-    }).appendTo(page);
+    }).appendTo(scrollView);
 
     return page;
 };

@@ -1,5 +1,4 @@
 var addNote = require("./pages/add-note");
-var viewNotes = require("./pages/view-notes");
 var settings = require("./pages/settings");
 
 var page = new tabris.Page({
@@ -7,70 +6,120 @@ var page = new tabris.Page({
   topLevel: true
 });
 
+var action;
 page.on("appear", function () {
-  console.log(localStorage.getItem("notes"));
+  // localStorage.removeItem("notes");
+  localStorage.setItem("username", "jigar");
+  var notes = localStorage.getItem("notes");
+  console.log(notes);
+  if (!notes) {
+    var username = localStorage.getItem("username");
+    var jsonData = {};
+    jsonData[username] = {};
+    var strNotes = JSON.stringify(jsonData);
+    localStorage.setItem("notes", strNotes);
+  }
+  action = new tabris.Action({
+    title: "Options",
+    placementPriority: "high"
+  }).on("select", function () {
+    showOptions();
+  });
+  loadItems();
 });
 
-new tabris.Button({
+page.on("disappear", function () {
+  action.dispose();
+});
+
+var view = new tabris.CollectionView({
   layoutData: {
-    centerX: 0,
-    centerY: -75
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0
   },
-  text: "Add Note"
-}).on('tap', function () {
-  addNote.page().open();
+  itemHeight: 50,
+  refreshEnabled: false,
+  initializeCell: function (cell) {
+    var textView = new tabris.TextView({
+      layoutData: {
+        top: 2,
+        bottom: 2,
+        left: 5,
+        right: 5
+      }
+    }).appendTo(cell);
+
+    var button = new tabris.Button({
+      layoutData: {
+        left: 70,
+      },
+      text: "Click"
+    });
+
+    cell.on("change:item", function (widget, item) {
+      textView.set("text", item);
+    });
+  }
 }).appendTo(page);
 
-new tabris.Button({
-  layoutData: {
-    centerX: 0,
-    top: "prev() 10"
-  },
-  text: "View Notes"
-}).on('tap', function () {
-  viewNotes.page().open();
-}).appendTo(page)
+view.on('select', function (target, value) {
+  console.log(target);
+  console.log(value);
+});
 
-new tabris.Button({
-  layoutData: {
+function loadItems() {
+  var activityIndicator = new tabris.ActivityIndicator({
     centerX: 0,
-    top: "prev() 10"
-  },
-  text: "Settings"
-}).on('tap', function () {
-  navigator.notification.prompt(
-    "Please enter your password", // message
-    function (data) {
-      console.log(data);
-      if (data.buttonIndex == 1) {
-        settings.page().open();
-      }
-    }, // callback to invoke
-    "Settings", // title
-    ["Ok", "Cancel"] // buttonTextViews
-  );
-}).appendTo(page)
+    centerY: 0
+  }).appendTo(page);
 
-var callback = function (buttonIndex) {
+  activityIndicator.set("visible", true);
+
   setTimeout(function () {
-    window.plugins.toast.showShortCenter('button index clicked: ' + buttonIndex);
-  });
-};
+    activityIndicator.set("visible", false);
+    view.set({
+      items: getItems()
+    });
+  }, 1000);
+}
 
-function testShareSheet() {
+var count = 1;
+
+function getItems() {
+  var items = [];
+  for (var i = 0; i < 25; i++) {
+    items.push("Item " + count++);
+  }
+  return items;
+}
+
+function showOptions() {
   var options = {
-    androidTheme: window.plugins.actionsheet.ANDROID_THEMES.THEME_DEVICE_DEFAULT_LIGHT, // default is THEME_TRADITIONAL
-    title: 'What do you want with this image?',
-    subtitle: 'Choose wisely, my friend', // supported on iOS only
-    buttonLabels: ['Share via Facebook', 'Share via Twitter'],
-    androidEnableCancelButton: true, // default false
-    winphoneEnableCancelButton: true, // default false
+    title: 'Choose your option',
+    buttonLabels: ['Add New Note', 'Sync Notes', 'Settings'],
+    androidEnableCancelButton: true,
+    winphoneEnableCancelButton: true,
     addCancelButtonWithLabel: 'Cancel',
-    addDestructiveButtonWithLabel: 'Delete it',
-    position: [20, 40], // for iPad pass in the [x, y] position of the popover
-    destructiveButtonLast: true // you can choose where the destructive button is shown
+    position: [20, 40]
   };
-  window.plugins.actionsheet.show(options, callback);
+  window.plugins.actionsheet.show(options, function (btnIndex) {
+    if (btnIndex == 1) {
+      addNote.page().open();
+    } else if (btnIndex == 3) {
+      navigator.notification.prompt(
+        "Please enter your password",
+        function (data) {
+          console.log(data);
+          if (data.buttonIndex == 1) {
+            settings.page().open();
+          }
+        },
+        "Settings", ["Ok", "Cancel"]
+      );
+    }
+  });
 };
 
 page.open();

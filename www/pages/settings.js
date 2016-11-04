@@ -5,5 +5,5 @@ exports.page = function () {
     });
 
 
-    page.open();
+    return page;
 };
