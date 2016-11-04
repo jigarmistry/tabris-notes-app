@@ -8,16 +8,26 @@ var page = new tabris.Page({
 
 var action;
 page.on("appear", function () {
-  // localStorage.removeItem("notes");
+
   localStorage.setItem("username", "jigar");
   var notes = localStorage.getItem("notes");
-  console.log(notes);
+
+  var textView = new tabris.TextView({
+    centerX: 0,
+    centerY: 0,
+    text: "Add new note from options menu"
+  }).appendTo(page);
+
   if (!notes) {
     var username = localStorage.getItem("username");
     var jsonData = {};
     jsonData[username] = {};
     var strNotes = JSON.stringify(jsonData);
     localStorage.setItem("notes", strNotes);
+    textView.set("visible", true);
+  } else {
+    loadItems();
+    textView.set("visible", false);
   }
   action = new tabris.Action({
     title: "Options",
@@ -25,7 +35,6 @@ page.on("appear", function () {
   }).on("select", function () {
     showOptions();
   });
-  loadItems();
 });
 
 page.on("disappear", function () {
@@ -46,17 +55,10 @@ var view = new tabris.CollectionView({
       layoutData: {
         top: 2,
         bottom: 2,
-        left: 5,
+        left: 20,
         right: 5
       }
     }).appendTo(cell);
-
-    var button = new tabris.Button({
-      layoutData: {
-        left: 70,
-      },
-      text: "Click"
-    });
 
     cell.on("change:item", function (widget, item) {
       textView.set("text", item);

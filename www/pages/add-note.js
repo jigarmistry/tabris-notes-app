@@ -1,6 +1,6 @@
 exports.page = function () {
     var data = require("../db");
-    console.log(data);
+
     var page = new tabris.Page({
         title: "Add Note",
         topLevel: false
@@ -49,6 +49,8 @@ exports.page = function () {
         var username = localStorage.getItem("username");
         notes[username][textP.get("text")] = textI.get("text");
         localStorage.setItem("notes", JSON.stringify(notes));
+        textP.set("text", "");
+        textI.set("text", "");
     }).appendTo(scrollView);
 
     return page;
