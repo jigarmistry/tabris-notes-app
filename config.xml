@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.myapp.tabrisdemo" version="0.1.0">
+  <name>Tabris Demo</name>
+  <description>    Example Tabris.js App  </description>
+  <author email="jigarmistry24@gmail.com">    Jigar Mistry  </author>
+</widget>
