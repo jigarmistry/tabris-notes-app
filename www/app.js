@@ -10,6 +10,20 @@ var action;
 page.on("appear", function () {
 
   localStorage.setItem("username", "jigar");
+  localStorage.removeItem("username");
+  var username = localStorage.getItem("username");
+  if (!username) {
+    navigator.notification.prompt(
+      "Please set your name",
+      function (data) {
+        if (data.buttonIndex == 1) {
+          console.log(data);
+        }
+      },
+      "Settings", ["Ok"]
+    );
+  }
+
   var notes = localStorage.getItem("notes");
 
   var textView = new tabris.TextView({
@@ -100,7 +114,7 @@ function getItems() {
 function showOptions() {
   var options = {
     title: 'Choose your option',
-    buttonLabels: ['Add New Note', 'Sync Notes', 'Settings'],
+    buttonLabels: ['Add New Note', 'Sync Notes'],
     androidEnableCancelButton: true,
     winphoneEnableCancelButton: true,
     addCancelButtonWithLabel: 'Cancel',
